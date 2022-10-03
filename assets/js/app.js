@@ -189,6 +189,8 @@
 
                 this.enemies.forEach(enemy =>{
                     enemy.update();
+                    if ( this.checkCollision(this.player , enemy))
+                        enemy.mrakedForDeletion = true; 
                 })
                 this.enemies = this.enemies.filter((enemy)=> !enemy.mrakedForDeletion)
                 
@@ -213,6 +215,15 @@
 
             addEnemy(){
                 this.enemies.push(new Angler1(this));
+            }
+
+            checkCollision(react1 , react2){
+                return( react1.x < react2.x+ react2.width && 
+                        react1.x + react1.width >  react2.x &&
+                        react1.y < react2.y + react2.height &&
+                        react1.y + react1.height > react2.y 
+
+                )
             }
         }
 
