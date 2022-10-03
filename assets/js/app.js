@@ -108,7 +108,33 @@
         }
 
         class Enemy{
+            constructor(game){
+                this.game = game;
+                this.x = game.width;
+                this.speedX = Math.random() * -1.5 - 0.5;
+                this.mrakedForDeletion = false;
+            }
 
+            update(){
+                this.x += this.speedX;
+                if ( this.x + this.width < 0) this.mrakedForDeletion = true;
+
+            }
+
+            draw(context){
+                context.fillStyle = 'red';
+                context.fillRect(this.x,this.y,this.width , this.height);
+            }
+        }
+
+        class Angler1 extends Enemy {
+            constructor(game){
+                super(game);
+                this.width = 228 * 0.5;
+                this.height = 169 * 0.5;
+                // the start y point is random between 0 and 90% of the game height and offseted of its height 
+                this.y = Math.random() * (this.game.height * 0.9 - this.height );
+            }
         }
 
         class Layer{
@@ -138,27 +164,55 @@
                 this.player = new Player(this);
                 this.input = new InputHandler(this);
                 this.UI = new UI(this);
+                this.enemies = [];
+                this.enemyTimer= 0;
+                this.enemyIntreval=1000;
                 this.keys=[];
                 this.ammo=20;
                 this.ammoMax=50;
                 this.ammoTimer =0;
                 this.ammoIntreval=500;
+                this.gameOver=false;
                 
             }
 
             update(deltaTime){
                 this.player.update();
+                // charge one ammo every 500 ms
                 if ( this.ammoTimer > this.ammoIntreval){
                     if (this.ammo < this.ammoMax) this.ammo++ ;
                     this.ammoTimer =0;
                 }else{
                     this.ammoTimer += deltaTime;
                 }
+                /************************ */
+
+                this.enemies.forEach(enemy =>{
+                    enemy.update();
+                })
+                this.enemies = this.enemies.filter((enemy)=> !enemy.mrakedForDeletion)
+                
+                // add one enemy every 1 sec
+                if ( this.enemyTimer > this.enemyIntreval && !this.gameOver){
+                    this.addEnemy();
+                    this.enemyTimer = 0;
+                }else{
+                    this.enemyTimer += deltaTime;
+                }
+                /************************ */
+
             }
 
             draw(context){
                 this.player.draw(context);
                 this.UI.draw(context);
+                this.enemies.forEach(enemy =>{
+                    enemy.draw(context);
+                })
+            }
+
+            addEnemy(){
+                this.enemies.push(new Angler1(this));
             }
         }
 
