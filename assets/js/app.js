@@ -100,9 +100,9 @@
             }
 
             shootTop(){
-                if ( this.game.amo > 0 ){
+                if ( this.game.ammo > 0 ){
                     this.projectiles.push(new Projectile(this.game ,this.x , this.y))
-                    this.game.amo-- ;
+                    this.game.ammo-- ;
                 }
             }
         }
@@ -118,7 +118,18 @@
 
         }
         class UI{
-
+            constructor(game){
+                this.game = game;
+                this.fontSize = 25;
+                this.fontFamily = 'Helvetica';
+                this.color = 'yellow';
+            }
+            draw(context){
+                context.fillStyle=this.color;
+                for(let i =0 ; i < this.game.ammo; i++){
+                    context.fillRect(20+8*i, 50 , 3 , 20);
+                }
+            }
         }
         class Game{
             constructor(width,height){
@@ -126,29 +137,44 @@
                 this.height = height;
                 this.player = new Player(this);
                 this.input = new InputHandler(this);
+                this.UI = new UI(this);
                 this.keys=[];
-                this.amo=20;
+                this.ammo=20;
+                this.ammoMax=50;
+                this.ammoTimer =0;
+                this.ammoIntreval=500;
+                
             }
 
-            update(){
+            update(deltaTime){
                 this.player.update();
+                if ( this.ammoTimer > this.ammoIntreval){
+                    if (this.ammo < this.ammoMax) this.ammo++ ;
+                    this.ammoTimer =0;
+                }else{
+                    this.ammoTimer += deltaTime;
+                }
             }
 
             draw(context){
                 this.player.draw(context);
+                this.UI.draw(context);
             }
         }
 
         const game = new Game(canvas.width,canvas.height);
+        let lastTime = 0;
         // animation loop
-        function animate(){
+        function animate(timeStamp){
+            const deltaTime = timeStamp - lastTime;
+            lastTime = timeStamp;
             ctx.clearRect(0,0,canvas.width , canvas.height)
-            game.update();
+            game.update(deltaTime);
             game.draw(ctx);
             // requst an animation before next repaint 
             requestAnimationFrame(animate)
         }
-        animate();
+        animate(0);
 
         /************************************ */
     })
