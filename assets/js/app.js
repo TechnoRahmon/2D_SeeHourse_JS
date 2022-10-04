@@ -167,9 +167,32 @@
 
                 // score
                 context.fillText(`Score: ${this.game.score}` , 20 ,40);
+
                 // ammo
                 for(let i =0 ; i < this.game.ammo; i++){
                     context.fillRect(20+8*i, 50 , 3 , 20);
+                }
+
+                // game timer
+                const formatedTime = (this.game.gameTime * 0.001).toFixed(1);
+                context.fillText(`Timer : ${formatedTime}`, 20 , 100);
+
+                // game over messages
+                if ( this.game.gameOver){
+                    // align text
+                    context.textAlign = 'center';
+                    let message1 , message2;
+                    if ( this.game.score > this.game.winningScore ){
+                        message1 = 'You Win!';
+                        message2 = 'Well Done!';
+                    }else{
+                        message1 ='You Lose!';
+                        message2 = 'Try again next time!';
+                    }
+                    context.font = `50px ${this.fontFamily}` ;
+                    context.fillText(message1 , this.game.width * 0.5 , this.game.height * 0.5  -40 )
+                    context.font = `25px ${this.fontFamily}` ;
+                    context.fillText(message2 , this.game.width * 0.5 , this.game.height * 0.5 + 40 )
                 }
                 context.restore();
             }
@@ -192,9 +215,18 @@
                 this.gameOver=false;
                 this.score =0;
                 this.winningScore = 10;
+                this.gameTime = 0;
+                this.timeLimit = 15000 ;
             }
 
             update(deltaTime){
+                if (!this.gameOver) this.gameTime += deltaTime;
+                // if player loses.
+                if ( this.gameTime > this.timeLimit ) {
+                    this.gameOver = true;
+                    this.deleteAllEnemies()
+                }
+
                 this.player.update();
                 // charge one ammo every 500 ms
                 if ( this.ammoTimer > this.ammoIntreval){
@@ -221,8 +253,12 @@
                             if ( enemy.lives <= 0 ){
                                 enemy.mrakedForDeletion = true;
                                 // update game score
-                                this.score += enemy.score;
-                                if ( this.score > this.winningScore ) this.gameOver = true;
+                                if (!this.gameOver) this.score += enemy.score;
+                                // if player wins
+                                if ( this.score > this.winningScore ) {
+                                    this.gameOver = true;
+                                    this.deleteAllEnemies()
+                                }
                             }
                         }
                     })
@@ -241,7 +277,9 @@
                 /************************ */
 
             }
-
+             deleteAllEnemies(){
+                this.enemies=[];
+            }
             draw(context){
                 this.player.draw(context);
                 this.UI.draw(context);
