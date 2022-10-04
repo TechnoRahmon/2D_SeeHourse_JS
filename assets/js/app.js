@@ -153,13 +153,25 @@
                 this.game = game;
                 this.fontSize = 25;
                 this.fontFamily = 'Helvetica';
-                this.color = 'yellow';
+                this.color = 'white';
             }
             draw(context){
+                // UI style
+                // in order to apply shadow only on text in canvas , should but the shadow between (save()  and restore())
+                context.save();
+                context.font = this.fontSize + 'px '+ this.fontFamily;
+                context.shadowOffsetX =2;
+                context.shadowOffsetY =2;
+                context.shadowColor ='black';
                 context.fillStyle=this.color;
+
+                // score
+                context.fillText(`Score: ${this.game.score}` , 20 ,40);
+                // ammo
                 for(let i =0 ; i < this.game.ammo; i++){
                     context.fillRect(20+8*i, 50 , 3 , 20);
                 }
+                context.restore();
             }
         }
         class Game{
@@ -178,7 +190,8 @@
                 this.ammoTimer =0;
                 this.ammoIntreval=500;
                 this.gameOver=false;
-                
+                this.score =0;
+                this.winningScore = 10;
             }
 
             update(deltaTime){
@@ -207,7 +220,9 @@
                             // delete an enemy if its live is 0 
                             if ( enemy.lives <= 0 ){
                                 enemy.mrakedForDeletion = true;
+                                // update game score
                                 this.score += enemy.score;
+                                if ( this.score > this.winningScore ) this.gameOver = true;
                             }
                         }
                     })
