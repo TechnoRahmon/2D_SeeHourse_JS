@@ -113,6 +113,8 @@
                 this.x = game.width;
                 this.speedX = Math.random() * -1.5 - 0.5;
                 this.mrakedForDeletion = false;
+                this.lives =5;
+                this.score = this.lives;
             }
 
             update(){
@@ -124,6 +126,9 @@
             draw(context){
                 context.fillStyle = 'red';
                 context.fillRect(this.x,this.y,this.width , this.height);
+                context.fillStyle = 'black';
+                context.font = '20px Helvetica';
+                context.fillText(this.lives , this.x , this.y);
             }
         }
 
@@ -187,11 +192,28 @@
                 }
                 /************************ */
 
+                // check Collision between player and enemies
                 this.enemies.forEach(enemy =>{
                     enemy.update();
                     if ( this.checkCollision(this.player , enemy))
                         enemy.mrakedForDeletion = true; 
+
+                    // check Collision between projectile and enemies
+                    this.player.projectiles.forEach(prjectrile=>{
+                        if (this.checkCollision(prjectrile,enemy)){
+                            enemy.lives--;
+                            // delete projectile
+                            prjectrile.mrakedForDeletion = true;
+                            // delete an enemy if its live is 0 
+                            if ( enemy.lives <= 0 ){
+                                enemy.mrakedForDeletion = true;
+                                this.score += enemy.score;
+                            }
+                        }
+                    })
                 })
+                /***************************************** */
+
                 this.enemies = this.enemies.filter((enemy)=> !enemy.mrakedForDeletion)
                 
                 // add one enemy every 1 sec
