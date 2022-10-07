@@ -47,14 +47,14 @@
                 this.y = y;
                 this.speed=5;
                 this.mrakedForDeletion = false;
+                this.image=document.getElementById('projectile')
             }
             update(){
                 this.x += this.speed;
                 if ( this.x > this.game.width * 0.8 ) this.mrakedForDeletion = true;
             }
             draw(context){
-                context.fillStyle = 'yellow';
-                context.fillRect(this.x , this.y , this.width , this.height)
+                context.drawImage(this.image,this.x,this.y)
             }
         }
 
@@ -90,6 +90,14 @@
                     this.speedY =0;
 
                 this.y += this.speedY;
+
+                //vertical boundaries
+                const BottomBoundary = this.game.height - this.height*0.5 ;
+                const TopBoundary = -this.height*0.5;
+                if ( this.y > BottomBoundary ) this.y = BottomBoundary;
+                else if (this.y < TopBoundary) this.y=TopBoundary;
+                /************************** */
+
                 // handle  Projectile
                 this.projectiles.forEach((projectile)=>{
                     projectile.update();
@@ -176,12 +184,15 @@
             }
 
             draw(context){
-                if ( this.game.debug )
+                if ( this.game.debug ){
                     context.strokeRect(this.x,this.y,this.width , this.height);
+                    context.font = '20px Helvetica';
+                    context.fillText(this.lives , this.x , this.y);
+                }
+                    
                 context.drawImage(this.image ,this.frameX*this.width , this.frameY*this.height,
                                 this.width , this.height, this.x, this.y, this.width , this.height)
-                context.font = '20px Helvetica';
-                context.fillText(this.lives , this.x , this.y);
+
             }
         }
 
@@ -276,7 +287,7 @@
             constructor(game){
                 this.game = game;
                 this.fontSize = 25;
-                this.fontFamily = 'Helvetica';
+                this.fontFamily = 'Bangers';
                 this.color = 'white';
             }
             draw(context){
@@ -302,16 +313,16 @@
                     context.textAlign = 'center';
                     let message1 , message2;
                     if ( this.game.score > this.game.winningScore ){
-                        message1 = 'You Win!';
-                        message2 = 'Well Done!';
+                        message1 = 'Most Wondrous!';
+                        message2 = 'Well done explorer!';
                     }else{
-                        message1 ='You Lose!';
-                        message2 = 'Try again next time!';
+                        message1 ='Blazes!';
+                        message2 = 'Get my repair kit and try again!';
                     }
-                    context.font = `50px ${this.fontFamily}` ;
-                    context.fillText(message1 , this.game.width * 0.5 , this.game.height * 0.5  -40 )
+                    context.font = `70px ${this.fontFamily}` ;
+                    context.fillText(message1 , this.game.width * 0.5 , this.game.height * 0.5  -20 )
                     context.font = `25px ${this.fontFamily}` ;
-                    context.fillText(message2 , this.game.width * 0.5 , this.game.height * 0.5 + 40 )
+                    context.fillText(message2 , this.game.width * 0.5 , this.game.height * 0.5 + 20 )
                 }
 
                 // ammo
@@ -343,7 +354,7 @@
                 this.score =0;
                 this.winningScore = 10;
                 this.gameTime = 0;
-                this.timeLimit = 1500000 ;
+                this.timeLimit = 15000 ;
                 this.speed = 1;
                 this.debug= true;
             }
