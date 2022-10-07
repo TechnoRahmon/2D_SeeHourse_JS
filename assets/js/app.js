@@ -23,6 +23,8 @@
                         this.game.keys.push(e.key)
                     }else if (e.key === ' '){
                         this.game.player.shootTop();
+                    }else if( e.key =='d'){
+                        this.game.debug = !this.game.debug;
                     }
                 })
 
@@ -100,7 +102,8 @@
 
             draw(context){
                 context.fillStyle = 'black';
-                context.fillRect(this.x,this.y,this.width ,this.height);
+               if(this.game.debug) 
+                    context.strokeRect(this.x,this.y,this.width ,this.height);
                 context.drawImage(this.image, this.frameX * this.width , this.frameY * this.height , this.width , this.height, this.x , this.y , this.width , this.height );
                 // handle  Projectile
                 this.projectiles.forEach((projectile)=>{
@@ -125,18 +128,28 @@
                 this.mrakedForDeletion = false;
                 this.lives =5;
                 this.score = this.lives;
+                this.frameY=0;
+                this.frameX=0;
+                this.maxFrame=37;
             }
 
             update(){
-                this.x += this.speedX;
+                this.x += this.speedX - this.game.speed;
                 if ( this.x + this.width < 0) this.mrakedForDeletion = true;
+
+                // sprite animation
+                if ( this.frameX < this.maxFrame )
+                    this.frameX++;
+                else 
+                    this.frameX=0;
 
             }
 
             draw(context){
-                context.fillStyle = 'red';
-                context.fillRect(this.x,this.y,this.width , this.height);
-                context.fillStyle = 'black';
+                if ( this.game.debug )
+                    context.strokeRect(this.x,this.y,this.width , this.height);
+                context.drawImage(this.image ,this.frameX*this.width , this.frameY*this.height,
+                                this.width , this.height, this.x, this.y, this.width , this.height)
                 context.font = '20px Helvetica';
                 context.fillText(this.lives , this.x , this.y);
             }
@@ -145,10 +158,12 @@
         class Angler1 extends Enemy {
             constructor(game){
                 super(game);
-                this.width = 228 * 0.5;
-                this.height = 169 * 0.5;
+                this.width = 228 ;
+                this.height = 169 ;
                 // the start y point is random between 0 and 90% of the game height and offseted of its height 
                 this.y = Math.random() * (this.game.height * 0.9 - this.height );
+                this.image=document.getElementById('angler1');
+                this.frameY = Math.floor(Math.random() * 3);
             }
         }
 
@@ -265,6 +280,7 @@
                 this.gameTime = 0;
                 this.timeLimit = 15000 ;
                 this.speed = 1;
+                this.debug= true;
             }
 
             update(deltaTime){
