@@ -70,7 +70,7 @@
                 this.x=20;
                 this.y=100;
                 this.frameX= 0;
-                this.frameY= 0;
+                this.frameY= 1;
                 this.maxFrame=37;
                 this.speedY =0;
                 this.MaxSpeed = 5;
@@ -126,8 +126,6 @@
                 this.x = game.width;
                 this.speedX = Math.random() * -1.5 - 0.5;
                 this.mrakedForDeletion = false;
-                this.lives =5;
-                this.score = this.lives;
                 this.frameY=0;
                 this.frameX=0;
                 this.maxFrame=37;
@@ -164,6 +162,23 @@
                 this.y = Math.random() * (this.game.height * 0.9 - this.height );
                 this.image=document.getElementById('angler1');
                 this.frameY = Math.floor(Math.random() * 3);
+                this.lives =2;
+                this.score = this.lives;
+            }
+        }
+
+
+        class Angler2 extends Enemy {
+            constructor(game){
+                super(game);
+                this.width = 213 ;
+                this.height = 165 ;
+                // the start y point is random between 0 and 90% of the game height and offseted of its height 
+                this.y = Math.random() * (this.game.height * 0.9 - this.height );
+                this.image=document.getElementById('angler2');
+                this.frameY = Math.floor(Math.random() * 2);
+                this.lives =3;
+                this.score = this.lives;
             }
         }
 
@@ -358,7 +373,12 @@
             }
 
             addEnemy(){
-                this.enemies.push(new Angler1(this));
+                const randomize = Math.random();
+                if ( randomize < 0.5 )
+                    this.enemies.push(new Angler1(this));
+                else
+                    this.enemies.push(new Angler2(this));
+
             }
 
             checkCollision(react1 , react2){
