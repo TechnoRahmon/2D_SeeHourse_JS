@@ -43,7 +43,7 @@
                 this.height=2;
                 this.x=x;
                 this.y = y;
-                this.speed=3;
+                this.speed=5;
                 this.mrakedForDeletion = false;
             }
             update(){
@@ -67,9 +67,13 @@
                 this.height = 190;
                 this.x=20;
                 this.y=100;
+                this.frameX= 0;
+                this.frameY= 0;
+                this.maxFrame=37;
                 this.speedY =0;
                 this.MaxSpeed = 5;
                 this.projectiles= [];
+                this.image = document.getElementById('player');
             }
 
             update(){
@@ -86,12 +90,18 @@
                     projectile.update();
                 });
                this.projectiles = this.projectiles.filter((projectile)=> !projectile.mrakedForDeletion)
-
+                // sprite animtions
+                if ( this.frameX < this.maxFrame){
+                    this.frameX++;
+                }else{
+                    this.frameX =0;
+                }
             }
 
             draw(context){
                 context.fillStyle = 'black';
                 context.fillRect(this.x,this.y,this.width ,this.height);
+                context.drawImage(this.image, this.frameX * this.width , this.frameY * this.height , this.width , this.height, this.x , this.y , this.width , this.height );
                 // handle  Projectile
                 this.projectiles.forEach((projectile)=>{
                     projectile.draw(context);
@@ -101,7 +111,7 @@
 
             shootTop(){
                 if ( this.game.ammo > 0 ){
-                    this.projectiles.push(new Projectile(this.game ,this.x , this.y))
+                    this.projectiles.push(new Projectile(this.game ,this.x+75 , this.y+35))
                     this.game.ammo-- ;
                 }
             }
@@ -155,19 +165,26 @@
 
             update(){
                 if( this.x <= -this.width ) this.x=0;
-                else this.x -= this.game.speed * this.speedModifier;
+                 this.x -= this.game.speed * this.speedModifier;
             }
 
             draw(context){
-                context.drawImage(this.game, this.x , this.y);
+                context.drawImage(this.image, this.x , this.y);
+                context.drawImage(this.image, this.x + this.width, this.y);
             }
         }
         class Background{
             constructor(game){
                 this.game= game;
                 this.image1 = document.getElementById('layer1');
-                this.layer1 = new Layer(this.game, this.image1 , 1);
-                this.layers=[this.layer1];
+                this.image2 = document.getElementById('layer2');
+                this.image3 = document.getElementById('layer3');
+                this.image4 = document.getElementById('layer4');
+                this.layer1 = new Layer(this.game, this.image1 ,0.2);
+                this.layer2 = new Layer(this.game, this.image2 ,0.4);
+                this.layer3 = new Layer(this.game, this.image3 , 1);
+                this.layer4 = new Layer(this.game, this.image4 , 1.5);
+                this.layers=[this.layer1 , this.layer2 , this.layer3 ];
             }
 
             update(){
@@ -259,6 +276,7 @@
                 }
                 // update background
                 this.Background.update();
+                this.Background.layer4.update();
                 // update player
                 this.player.update();
                 // charge one ammo every 500 ms
@@ -314,12 +332,13 @@
                 this.enemies=[];
             }
             draw(context){
-                this.Background(context)
+                this.Background.draw(context)
                 this.player.draw(context);
                 this.UI.draw(context);
                 this.enemies.forEach(enemy =>{
                     enemy.draw(context);
-                })
+                });
+                this.Background.layer4.draw(context)
             }
 
             addEnemy(){
