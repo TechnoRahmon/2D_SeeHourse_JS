@@ -82,21 +82,26 @@
             update(){
                 this.angle += this.va;
                 this.speedY += this.garvity;
-                this.x -= this.speedX;
+                this.x -= this.speedX + this.game.speed;
                 this.y += this.speedY;
                 if ( this.y > this.game.height + this.size  || this.x < 0-this.size) 
                     this.mrakedForDeletion =true;
                 
                 // bouncing particles
                 if( this.y > this.game.height - this.bottomBouncedBoundary && 
-                    this.bounced < 2 ){
+                    this.bounced < 5 ){
                     this.bounced++;
                     this.speedY *= -0.5;
                 }
             }
             draw(context){
+                context.save();
+                // set the coordinate (x,y) to the x,y of the particle object
+                context.translate(this.x, this.y);
+                context.rotate(this.angle);
                 context.drawImage(this.image,this.frameX,this.frameY*this.spriteSize,
-                                this.spriteSize,this.spriteSize ,this.x , this.y , this.size , this.size)
+                                this.spriteSize,this.spriteSize ,this.size* -0.5 ,this.size*-0.5 , this.size , this.size)
+                context.restore();
             }
         }
 
