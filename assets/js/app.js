@@ -4,7 +4,7 @@
         //setup canvas    
         const canvas = this.document.getElementById("canvas1");
         const ctx = canvas.getContext('2d');
-        canvas.width =1500;
+        canvas.width =1000;
         canvas.height=500;
 
         const EUNM = { 
@@ -248,7 +248,8 @@
                 this.y = Math.random() * (this.game.height * 0.95 - this.height );
                 this.image=document.getElementById('angler1');
                 this.frameY = Math.floor(Math.random() * 3);
-                this.lives =2;
+                this.lives =5;
+                this.damage=Math.floor(Math.random()* 2 + 1);
                 this.score = this.lives;
             }
         }
@@ -263,7 +264,8 @@
                 this.y = Math.random() * (this.game.height * 0.95 - this.height );
                 this.image=document.getElementById('angler2');
                 this.frameY = Math.floor(Math.random() * 2);
-                this.lives =3;
+                this.lives =6;
+                this.damage=Math.floor(Math.random()* 4 + 1);
                 this.score = this.lives;
             }
         }
@@ -278,8 +280,9 @@
                 this.y = Math.random() * (this.game.height * 0.95 - this.height );
                 this.image=document.getElementById('lucky');
                 this.frameY = Math.floor(Math.random() * 2);
-                this.lives =3;
+                this.lives =5;
                 this.score = 15;
+                this.damage=0;
                 this.type='lucky'
             }
         }
@@ -294,10 +297,11 @@
                 this.y = Math.random() * (this.game.height * 0.95 - this.height );
                 this.image=document.getElementById('hivewhale');
                 this.frameY = 0;
-                this.lives =15;
+                this.lives =20;
                 this.score = this.lives;
                 this.type='hive';
                 this.speedX=Math.random() * -1.2 - 0.2;
+                this.damage=Math.floor(Math.random()* 6 + 5);
             }
         }
 
@@ -315,6 +319,7 @@
                 this.score = this.lives;
                 this.type='drone';
                 this.speedX=Math.random() * -4.2 - 1;
+                this.damage=Math.floor(Math.random()* 2 + 1);
             }
         }
         
@@ -368,11 +373,16 @@
                 this.y= y;
                 this.framX=0;
                 this.spriteHeight=200;
-                this.fps=15;
+                this.spriteWidth= 200;
+                this.fps=30;
                 this.timer=0;
                 this.interval= 1000/this.fps;
                 this.mrakedForDeletion = false;
                 this.maxFrame =8;
+                this.width = this.spriteWidth;
+                this.height= this.spriteHeight;
+                this.x= this.x - this.width *0.5;
+                this.y = this.y - this.height*0.5;
             }
             update(deltaTime){
                 this.x -= this.game.speed;
@@ -396,12 +406,6 @@
             constructor(game,x,y){
                 super(game,x,y);
                 this.image=document.getElementById('smokeExplosion');
-                this.spriteWidth= 200;
-                this.width = this.spriteWidth;
-                this.height= this.spriteHeight;
-                this.x= this.x - this.width *0.5;
-                this.y = this.y - this.height*0.5;
-            
             }
         }
 
@@ -475,7 +479,7 @@
                 this.particles=[];
                 this.explosions=[];
                 this.enemyTimer= 0;
-                this.enemyIntreval=1000;
+                this.enemyIntreval=2000;
                 this.keys=[];
                 this.ammo=20;
                 this.ammoMax=50;
@@ -483,9 +487,9 @@
                 this.ammoIntreval=500;
                 this.gameOver=false;
                 this.score =0;
-                this.winningScore = 500;
+                this.winningScore = 100;
                 this.gameTime = 0;
-                this.timeLimit = 150000 ;
+                this.timeLimit = 30000 ;
                 this.speed = 1;
                 this.debug= true;
             }
@@ -532,7 +536,7 @@
                                 *0.5 , enemy.y+ enemy.height *0.5))
                         }
                         if (enemy.type === 'lucky') this.player.enterPowerUp();
-                        else this.score-- ; 
+                        else this.score -= enemy.damage ; 
                     }
                          
 
@@ -606,17 +610,21 @@
                     this.enemies.push(new Angler1(this));
                 else if (randomize < 0.6)
                     this.enemies.push(new Angler2(this));
-                else if (randomize < 0.8)
+                else if (randomize < 0.7)
                     this.enemies.push(new HivWhale(this));
                 else
                     this.enemies.push(new LuckyFish(this));    
             }
             addExplosion(enemy){
                 const randomize = Math.random();
-               if ( randomize < 1 )
+               if ( randomize < 0.5 )
                    this.explosions.push(new SmokeExploison(this, 
                                             enemy.x + enemy.width * 0.5,
-                                             enemy.y+ enemy.height * 0.5));   
+                                             enemy.y+ enemy.height * 0.5));
+                else
+                    this.explosions.push(new FireExploison(this, 
+                        enemy.x + enemy.width * 0.5,
+                        enemy.y+ enemy.height * 0.5));
            }
 
             checkCollision(react1 , react2){
