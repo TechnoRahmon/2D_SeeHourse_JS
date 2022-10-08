@@ -47,11 +47,12 @@
                 this.y = y;
                 this.speed=5;
                 this.mrakedForDeletion = false;
-                this.image=document.getElementById('projectile')
+                this.image=document.getElementById('projectile');
             }
             update(){
                 this.x += this.speed;
-                if ( this.x > this.game.width * 0.8 ) this.mrakedForDeletion = true;
+                if ( this.x > this.game.width * 0.8 ) 
+                    this.mrakedForDeletion = true;
             }
             draw(context){
                 context.drawImage(this.image,this.x,this.y)
@@ -59,7 +60,44 @@
         }
 
         class Particle{
-
+            constructor(game,x,y){
+                this.game= game;
+                this.x=x;
+                this.y=y;
+                this.image = document.getElementById('gears')
+                this.frameX=Math.floor(Math.random() * 3);
+                this.frameY =Math.floor(Math.random()*3);
+                this.spriteSize  = 50;
+                this.sizeModifer = (Math.random() * 0.5 +0.5).toFixed(1);
+                this.size = this.spriteSize * this.sizeModifer;
+                this.speedX = Math.random() * 6 -3;
+                this.speedY = Math.random() * -15;
+                this.garvity = 0.5;
+                this.mrakedForDeletion =false;
+                this.angle =0;
+                this.va = Math.random() *0.2 -0.1;
+                this.bounced=0;
+                this.bottomBouncedBoundary =Math.random()* 100 +60;
+            }
+            update(){
+                this.angle += this.va;
+                this.speedY += this.garvity;
+                this.x -= this.speedX;
+                this.y += this.speedY;
+                if ( this.y > this.game.height + this.size  || this.x < 0-this.size) 
+                    this.mrakedForDeletion =true;
+                
+                // bouncing particles
+                if( this.y > this.game.height - this.bottomBouncedBoundary && 
+                    this.bounced < 2 ){
+                    this.bounced++;
+                    this.speedY *= -0.5;
+                }
+            }
+            draw(context){
+                context.drawImage(this.image,this.frameX,this.frameY*this.spriteSize,
+                                this.spriteSize,this.spriteSize ,this.x , this.y , this.size , this.size)
+            }
         }
 
         class Player{
@@ -343,6 +381,7 @@
                 this.UI = new UI(this);
                 this.Background= new Background(this)
                 this.enemies = [];
+                this.particles=[];
                 this.enemyTimer= 0;
                 this.enemyIntreval=1000;
                 this.keys=[];
@@ -379,12 +418,21 @@
                     this.ammoTimer += deltaTime;
                 }
                 /************************ */
+                // update particles 
+                this.particles.forEach(particle => particle.update());
+                //check if the particle is marked as deleted
+                this.particles = this.particles.filter(particle => !particle.mrakedForDeletion );
 
                 // check Collision between player and enemies
                 this.enemies.forEach(enemy =>{
                     enemy.update();
                     if ( this.checkCollision(this.player , enemy)){
                         enemy.mrakedForDeletion = true;
+                        // create ten particles each time projectile collied with player
+                        for (let i=0 ; i < 10 ; i++){
+                            this.particles.push(new Particle(this,enemy.x+enemy.width
+                                *0.5 , enemy.y+ enemy.height *0.5))
+                        }
                         if (enemy.type == 'lucky') this.player.enterPowerUp();
                         else this.score-- ; 
                     }
@@ -396,9 +444,17 @@
                             enemy.lives--;
                             // delete projectile
                             prjectrile.mrakedForDeletion = true;
+                            // create one particle each time projectile collied with enemy
+                            this.particles.push(new Particle(this,enemy.x+enemy.width
+                                *0.5 , enemy.y+ enemy.height *0.5))
                             // delete an enemy if its live is 0 
                             if ( enemy.lives <= 0 ){
                                 enemy.mrakedForDeletion = true;
+                            // create ten particles each time enemy distroyed
+                            for (let i=0 ; i < 10 ; i++){
+                                this.particles.push(new Particle(this,enemy.x+enemy.width
+                                    *0.5 , enemy.y+ enemy.height *0.5))
+                            }
                                 // update game score
                                 if (!this.gameOver) this.score += enemy.score;
                                 // if player wins
@@ -431,6 +487,7 @@
                 this.Background.draw(context)
                 this.player.draw(context);
                 this.UI.draw(context);
+                this.particles.forEach(particle=>particle.draw(context))
                 this.enemies.forEach(enemy =>{
                     enemy.draw(context);
                 });
